@@ -1,0 +1,6 @@
+venv/*
+config.ini
+dbconn.ini
+work_tlgrm.txt
+my_account.session
+.idea/*
