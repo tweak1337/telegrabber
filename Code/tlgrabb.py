@@ -142,6 +142,21 @@ async def get_post(client, message):
     link = f'https://t.me/{username}/{message_id}'
 
     try:
+        webpage_url = message.web_page.url
+    except Exception:
+        webpage_url = None
+
+    try:
+        caption_entities = message.caption_entities
+    except Exception:
+        caption_entities = None
+
+    try:
+        entities = message.entities
+    except Exception:
+        entities = None
+
+    try:
         try:
             replied_from = message.forward_from_chat.username
             replied_from_name = message.forward_from_chat.title
@@ -179,14 +194,46 @@ async def get_post(client, message):
         finaltext = 'No caption video'
     else:
         finaltext = 'No caption image'
-
+    # print(message)
     # Проверка на рекламу
-    if ('t.me' in str(message) or '"type": "mention"' in str(message) or
-        '"type": "text_link"' in str(message) or 'clc.to' in str(message) or
-        '#реклама' in str(message) or 'InlineKeyboardMarkup' in str(message) or
-        '"web_page"' in str(message) or 'https:' in str(message)):
+    if ('clc.to' in str(message) or '#реклама' in str(message) or 'InlineKeyboardMarkup' in str(message)):
         ad = 1
+        # print(now,'0')
+    elif '"type": "mention"' in str(message):
+        if str(username).lower() not in str(finaltext).lower():
+            # print(now,'1')
+            ad = 1
+        else:
+            # print(now,'2')
+            ad = 0
+    elif webpage_url != None:
+
+        if str(username).lower() not in webpage_url.lower():
+            # print(now,'3')
+            ad = 1
+        else:
+            # print(now,'4')
+            ad = 0
+
+    elif 't.me' in str(message) and caption_entities != None:
+
+        if str(username).lower() not in str(caption_entities).lower():
+            # print(now,'5')
+            ad = 1
+        else:
+            # print(now,'6')
+            ad = 0
+
+    elif 't.me' in str(message) and entities != None:
+
+        if str(username).lower() not in str(entities).lower():
+            # print(now,7)
+            ad = 1
+        else:
+            # print(now,8)
+            ad = 0
     else:
+        # print(now, 9)
         ad = 0
 
     text = normalize(finaltext)
@@ -301,8 +348,9 @@ async def get_post(client, message):
                         await message.copy(eval(own))
                     else:
                         pass
-            elif username == 'video_dolboeba' or username == 'community_memy' or username == 'yumor_video_prikoly' \
-                    or username == 'cmehov' or username == 'ot_zp_do_zp' or username == 'fiftypound':
+            elif username == 'video_dolboeba' or username == 'community_memy' or \
+                    username == 'yumor_video_prikoly' or username == 'cmehov' or username == 'ot_zp_do_zp' or \
+                    username == 'fiftypound':
                 await message.copy(eval(own))
 
             else:
@@ -310,7 +358,7 @@ async def get_post(client, message):
         elif username == 'borsh_tg':
             if ad == 0:
                 await message.copy(eval(own), caption='@hardcorefunnews')
-            elif ad == 1 and 't.me/borsh_tg' in str(message):
+            elif ad == 1 and 't.me/millions_on_memes' in str(message) or ad == 1 and 't.me/borsh_tg' in str(message):
                 await message.copy(eval(own), caption='@hardcorefunnews')
             else:
                 pass
@@ -411,7 +459,7 @@ async def get_post(client, message):
                 cursor.execute(
                     '''insert into telegram.telegrabber (message_id, username, channel_name, replied_from, replied_from_name,
                  message_text, posted_timestamp, edited_timestamp, activity_date, emotional, is_ad, hashtags, edit_counter, len_diff, link) 
-                 values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s %s, %s)''',
+                 values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
                     (message_id, username, channel_name, replied_from, replied_from_name, finaltext, posted_timestamp, edited_timestamp, now, emotional, ad,
                      str_hashtags, edit_counter+1, len_diff, link))
 
